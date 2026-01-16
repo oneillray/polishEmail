@@ -39,6 +39,7 @@ npm run dev
 ### Key files
 
 - **UI**: `src/components/EmailComposer/EmailComposer.tsx`
+
 - **Review modal**: `src/components/EmailComposer/DiffReviewModal.tsx`
 - **Gemini client**: `src/lib/gemini/polishEmail.ts`
   - (This uses Groq model `llama-3.3-70b-versatile`.)

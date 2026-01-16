@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { GuxButton, GuxModal } from "genesys-spark-components-react";
 
 type Props = {
   title: string;
@@ -6,42 +6,43 @@ type Props = {
   polished: string;
   onCancel: () => void;
   onApply: () => void;
+  applyLabel?: string;
 };
 
-export function DiffReviewModal({ title, original, polished, onCancel, onApply }: Props) {
+export function DiffReviewModal({
+  title,
+  original,
+  polished,
+  onCancel,
+  onApply,
+  applyLabel = "Apply",
+}: Props) {
   return (
-    <div className="modalOverlay" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="modal">
-        <div className="modalHeader">
-          <div className="modalTitle">{title}</div>
-          <button className="btn" onClick={onCancel} aria-label="Close">
-            <X size={16} />
-          </button>
-        </div>
+    <GuxModal open size="large" onGuxdismiss={onCancel}>
+      <div slot="title">{title}</div>
 
-        <div className="modalBody">
-          <div className="compare">
-            <div>
-              <div className="paneTitle">Original</div>
-              <div className="pane">{original}</div>
-            </div>
-            <div>
-              <div className="paneTitle">Polished</div>
-              <div className="pane">{polished}</div>
-            </div>
+      <div slot="content">
+        <div className="compare">
+          <div>
+            <div className="paneTitle primary">Original</div>
+            <div className="pane color-primary">{original}</div>
+          </div>
+          <div>
+            <div className="paneTitle primary">Polished</div>
+            <div className="pane color-primary">{polished}</div>
           </div>
         </div>
-
-        <div className="modalFooter">
-          <button className="btn" onClick={onCancel}>
-            Cancel
-          </button>
-          <button className="btn btnPrimary" onClick={onApply}>
-            Apply
-          </button>
-        </div>
       </div>
-    </div>
+
+      <div slot="end-align-buttons">
+        <GuxButton accent="secondary" onClick={onCancel}>
+          Cancel
+        </GuxButton>
+        <GuxButton accent="primary" onClick={onApply}>
+          {applyLabel}
+        </GuxButton>
+      </div>
+    </GuxModal>
   );
 }
 

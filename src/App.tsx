@@ -1,4 +1,4 @@
-import { EmailComposer } from "./components/EmailComposer/EmailComposer";
+import { EmailRect } from "./components/EmailRect/EmailRect";
 
 export function App() {
   return (
@@ -6,11 +6,11 @@ export function App() {
       <header className="pageHeader">
         <div>
           <div className="title">Email Polish</div>
-          <div className="subtitle">Assisted authoring with review + undo.</div>
+          <div className="subtitle">WYSIWYG editor with assisted authoring (review + undo).</div>
         </div>
       </header>
       <main className="pageBody">
-        <EmailComposer />
+        <EmailRect />
       </main>
     </div>
   );

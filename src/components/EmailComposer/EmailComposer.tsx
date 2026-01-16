@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Wand2, Undo2 } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { Sparkles, ChevronDown } from "lucide-react";
 import { polishEmail, type PolishMode } from "../../lib/gemini/polishEmail";
 import { DiffReviewModal } from "./DiffReviewModal";
 
@@ -27,15 +27,17 @@ Can we finalize by Friday?
 Thanks,
 Ray`;
   });
-
-  const [undoStack, setUndoStack] = useState<string[]>([]);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [aiUndoStack, setAiUndoStack] = useState<string[]>([]);
   const [isPolishing, setIsPolishing] = useState(false);
   const [pendingReview, setPendingReview] = useState<PendingReview | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const canUndo = undoStack.length > 0;
-  const canRefine = text.trim().length > 0 && !isPolishing;
+  const [bubbleOpen, setBubbleOpen] = useState(false);
+  const selectionRef = useRef<{ from: number; to: number } | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const canAiUndo = aiUndoStack.length > 0;
+  const canRefineSelection = text.trim().length > 0 && !isPolishing;
 
   const helperText = useMemo(() => {
     if (isPolishing) return "Refining with Gemini…";
@@ -43,13 +45,21 @@ Ray`;
     return "AI suggestions are reviewed before applying. Undo is always available.";
   }, [error, isPolishing]);
 
-  async function runRefine(mode: PolishMode) {
+  async function runRefineSelection(mode: PolishMode) {
+    const el = textareaRef.current;
+    if (!el) return;
+    const from = el.selectionStart ?? 0;
+    const to = el.selectionEnd ?? 0;
+    if (from === to) return;
+
     setError(null);
     setIsPolishing(true);
-    setMenuOpen(false);
+    setBubbleOpen(false);
     try {
-      const polished = await polishEmail(text, mode);
-      setPendingReview({ mode, original: text, polished });
+      const selectedText = text.slice(from, to);
+      selectionRef.current = { from, to };
+      const polished = await polishEmail(selectedText, mode);
+      setPendingReview({ mode, original: selectedText, polished });
     } catch (e) {
       const message = e instanceof Error ? e.message : "Failed to refine text.";
       setError(message);
@@ -58,18 +68,23 @@ Ray`;
     }
   }
 
-  function applyPolish() {
+  function acceptPolish() {
     if (!pendingReview) return;
-    setUndoStack((s) => [...s, pendingReview.original]);
-    setText(pendingReview.polished);
+    const range = selectionRef.current;
+    if (!range) return;
+
+    setAiUndoStack((s) => [...s, text]);
+    const next = text.slice(0, range.from) + pendingReview.polished + text.slice(range.to);
+    setText(next);
+
     setPendingReview(null);
   }
 
-  function undo() {
-    setUndoStack((s) => {
+  function undoAi() {
+    setAiUndoStack((s) => {
       if (s.length === 0) return s;
-      const prev = s[s.length - 1]!;
-      setText(prev);
+      const prevText = s[s.length - 1]!;
+      setText(prevText);
       return s.slice(0, -1);
     });
   }
@@ -82,57 +97,57 @@ Ray`;
         </div>
 
         <div className="row">
-          <button className="btn" onClick={undo} disabled={!canUndo || isPolishing}>
-            <Undo2 size={16} />
-            Undo
+          <button className="btn" onClick={undoAi} disabled={!canAiUndo || isPolishing} type="button">
+            Undo AI
           </button>
-
-          <div className="popover">
-            <button
-              className="btn btnPrimary"
-              onClick={() => setMenuOpen((v) => !v)}
-              disabled={!canRefine}
-              aria-haspopup="menu"
-              aria-expanded={menuOpen}
-            >
-              <Wand2 size={16} />
-              Refine
-            </button>
-
-            {menuOpen ? (
-              <div className="menu" role="menu">
-                <div className="menuTitle">Refine preset</div>
-                <div className="menuGrid">
-                  <button className="btn" onClick={() => runRefine("fix-clean")}>
-                    Fix & Clean
-                  </button>
-                  <button className="btn" onClick={() => runRefine("professional")}>
-                    Professional
-                  </button>
-                  <button className="btn" onClick={() => runRefine("friendly")}>
-                    Friendly
-                  </button>
-                  <button className="btn" onClick={() => runRefine("concise")}>
-                    Concise
-                  </button>
-                </div>
-                <div className="divider" />
-                <div className="hint">
-                  Tip: We preserve facts (names/dates/links). You’ll review before applying.
-                </div>
-              </div>
-            ) : null}
-          </div>
         </div>
       </div>
 
       <div className="composerBody">
         <textarea
-          className="textarea"
+          ref={textareaRef}
+          className="sparkPlainTextarea"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Write your email…"
+          placeholder="Write your email here..."
         />
+
+        <div className="row" style={{ marginTop: 10, justifyContent: "flex-end" }}>
+          <button
+            className="sparkIconButton"
+            type="button"
+            onClick={() => setBubbleOpen((v) => !v)}
+            disabled={!canRefineSelection}
+            aria-haspopup="menu"
+            aria-expanded={bubbleOpen}
+            title="AI polish selection"
+          >
+            <Sparkles size={16} />
+            <ChevronDown size={14} />
+          </button>
+          {bubbleOpen ? (
+            <div className="sparkMenu" role="menu">
+              <div className="sparkMenuTitle">Polish selection</div>
+              <button className="sparkMenuItem" type="button" onClick={() => runRefineSelection("fix-clean")}>
+                Fix & Clean
+              </button>
+              <button className="sparkMenuItem" type="button" onClick={() => runRefineSelection("professional")}>
+                Professional
+              </button>
+              <button className="sparkMenuItem" type="button" onClick={() => runRefineSelection("friendly")}>
+                Friendly
+              </button>
+              <button className="sparkMenuItem" type="button" onClick={() => runRefineSelection("concise")}>
+                Concise
+              </button>
+              {isPolishing ? (
+                <div className="sparkSpinnerRow">
+                  <span className="sparkSpinner" /> Working…
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
         <div className="hint" style={{ marginTop: 10 }}>
           {helperText}
         </div>
@@ -144,7 +159,8 @@ Ray`;
           original={pendingReview.original}
           polished={pendingReview.polished}
           onCancel={() => setPendingReview(null)}
-          onApply={applyPolish}
+          onApply={acceptPolish}
+          applyLabel="Accept"
         />
       ) : null}
     </section>

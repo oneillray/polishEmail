@@ -12,14 +12,59 @@
   --shadow: rgba(0, 0, 0, 0.35);
   --accent: #7c5cff;
   --accent2: #37d3ff;
+
+  /* ------------------------------------------------------------------
+     Spark token compatibility layer:
+     - Spark webcomponents define --gse-* variables.
+     - Some internal docs refer to $gcss-* tokens; we expose a small alias set
+       to keep our app styles readable while staying aligned with Spark.
+     ------------------------------------------------------------------ */
+  --gcss-color-background-primary: var(
+    --gse-semantic-background-container-page-default,
+    rgba(0, 0, 0, 0.28)
+  );
+  --gcss-color-background-secondary: var(
+    --gse-semantic-background-container-page-tonalSubtle,
+    rgba(255, 255, 255, 0.06)
+  );
+  --gcss-color-border-primary: var(--gse-semantic-border-divider, rgba(255, 255, 255, 0.14));
+  --gcss-color-foreground-primary: var(--gse-semantic-foreground-primary, rgba(255, 255, 255, 0.92));
+  --gcss-color-foreground-secondary: var(
+    --gse-semantic-foreground-secondary,
+    rgba(255, 255, 255, 0.62)
+  );
+  --gcss-color-brand-primary: var(--gse-semantic-background-interactive-primary-default, #7c5cff);
+  --gcss-color-brand-secondary: var(--gse-semantic-foreground-link, #37d3ff);
+  --gcss-font-family-sans: var(
+    --gse-semantic-theme-fontFamily-body,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Helvetica,
+    Arial,
+    "Apple Color Emoji",
+    "Segoe UI Emoji"
+  );
+  --gcss-font-size-body: var(--gse-semantic-body-md-regular-fontSize, 14px);
+  --gcss-line-height-body: var(--gse-semantic-body-md-regular-lineHeight, 1.55);
+  --gcss-space-2: var(--gse-core-spacing-3xs, 8px);
+  --gcss-space-3: var(--gse-core-spacing-2xs, 12px);
+  --gcss-space-4: var(--gse-core-spacing-xs, 16px);
+  --gcss-radius-md: var(--gse-core-borderRadius-md, 10px);
+  --gcss-radius-lg: var(--gse-core-borderRadius-lg, 12px);
+
+  /* Requested brand overrides */
+  --email-body-color: #4f5157;
+  --email-toolbar-color: var(--gse-semantic-background-interactive-primary-default, #2143a2);
 }
 
 body {
   margin: 0;
-  background: radial-gradient(1200px 800px at 20% 0%, rgba(124, 92, 255, 0.22), transparent 55%),
-    radial-gradient(1000px 700px at 90% 20%, rgba(55, 211, 255, 0.16), transparent 55%),
-    var(--bg);
-  color: var(--text);
+  background: var(--gse-semantic-background-container-page-tonalSubtle, #f5f6fa);
+  color: var(--gcss-color-foreground-primary);
+  font-family: "Noto Sans", var(--gcss-font-family-sans);
 }
 
 .page {
@@ -31,7 +76,7 @@ body {
 .pageHeader {
   padding: 22px 24px;
   border-bottom: 1px solid var(--border);
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.35), transparent);
+  background: var(--gse-semantic-background-container-page-default, #ffffff);
 }
 
 .title {
@@ -51,6 +96,7 @@ body {
   padding: 24px;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
 }
 
 .card {
@@ -60,6 +106,88 @@ body {
   border-radius: 16px;
   box-shadow: 0 18px 60px var(--shadow);
   overflow: hidden;
+}
+
+.emailRect {
+  width: min(980px, 100%);
+}
+
+.emailRectInner {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.emailRectHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.emailRectTitle {
+  font-family: var(--gcss-font-family-sans);
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--gcss-color-foreground-primary);
+}
+
+.emailRectFields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.emailRectField {
+  width: 100%;
+}
+
+.emailRectBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.emailRectHint {
+  font-size: 12px;
+  color: var(--gcss-color-foreground-secondary);
+}
+
+.emailRectBubble {
+  display: inline-flex;
+}
+
+.emailRectAiMenu {
+  padding: 6px;
+  max-width: 340px;
+}
+
+.emailRectAiMenuLoading {
+  padding: 10px 10px;
+  font-size: 12px;
+  color: var(--gcss-color-foreground-secondary);
+  font-family: "Noto Sans", var(--gcss-font-family-sans);
+}
+
+.emailRectAiMenuItem {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 2px 0;
+}
+
+.emailRectAiMenuItemTitle {
+  font-family: "Noto Sans", var(--gcss-font-family-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--email-toolbar-color);
+}
+
+.emailRectAiMenuItemHelp {
+  font-family: "Noto Sans", var(--gcss-font-family-sans);
+  font-size: 12px;
+  color: var(--gcss-color-foreground-secondary);
 }
 
 .cardHeader {
@@ -137,6 +265,220 @@ body {
 .textarea:focus {
   border-color: rgba(124, 92, 255, 0.7);
   box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.15);
+}
+
+.sparkToolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--email-toolbar-color);
+}
+
+.sparkToolbarDivider {
+  width: 1px;
+  height: 20px;
+  background: var(--gcss-color-border-primary);
+  opacity: 0.9;
+}
+
+.sparkToolbarSpacer {
+  flex: 1;
+}
+
+.sparkButton {
+  height: 34px;
+  padding: 0 12px;
+  border-radius: var(--gcss-radius-md);
+  border: 1px solid var(--gcss-color-border-primary);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--email-toolbar-color);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  user-select: none;
+}
+
+.sparkButton:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.sparkButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.sparkIconButton {
+  height: 34px;
+  width: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--gcss-radius-md);
+  border: 1px solid var(--gcss-color-border-primary);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--email-toolbar-color);
+  cursor: pointer;
+  user-select: none;
+}
+
+.sparkIconButton[aria-pressed="true"] {
+  border-color: rgba(124, 92, 255, 0.7);
+  box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.12);
+}
+
+.sparkIconButton:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.sparkIconButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.sparkEditorShell {
+  border-radius: 14px;
+  border: 1px solid var(--gcss-color-border-primary);
+  background: var(--gcss-color-background-primary);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+}
+
+.sparkPlainTextarea {
+  width: 100%;
+  height: 360px; /* fixed height */
+  resize: none;
+  border-radius: 14px;
+  border: 1px solid var(--gcss-color-border-primary);
+  background: var(--gcss-color-background-primary);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+  overflow: auto;
+  outline: none;
+  padding: var(--gcss-space-4);
+  font-family: "Noto Sans", var(--gcss-font-family-sans);
+  font-size: var(--gcss-font-size-body);
+  line-height: var(--gcss-line-height-body);
+  color: var(--email-body-color);
+}
+
+.sparkPlainTextarea::placeholder {
+  color: var(--gcss-color-foreground-secondary);
+}
+
+.sparkPlainTextarea:focus {
+  border-color: var(--email-toolbar-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--email-toolbar-color) 20%, transparent);
+}
+
+.sparkEditorProse {
+  font-family: "Noto Sans", var(--gcss-font-family-sans);
+  font-size: var(--gcss-font-size-body);
+  line-height: var(--gcss-line-height-body);
+  color: var(--email-body-color);
+  padding: var(--gcss-space-4);
+  height: 360px; /* fixed height per PRD */
+  overflow: auto;
+  outline: none;
+}
+
+.sparkEditorProse p {
+  margin: 0 0 0.85em 0;
+}
+
+.sparkEditorProse p:last-child {
+  margin-bottom: 0;
+}
+
+.sparkEditorProse ul,
+.sparkEditorProse ol {
+  padding-left: 1.2em;
+  margin: 0.2em 0 0.9em 0;
+}
+
+.sparkEditorProse a {
+  color: var(--gcss-color-brand-secondary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.sparkEditorProse .is-empty::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--gcss-color-foreground-secondary);
+  pointer-events: none;
+  height: 0;
+}
+
+.sparkBubble {
+  position: relative;
+  display: inline-flex;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid var(--gcss-color-border-primary);
+  background: rgba(15, 18, 26, 0.98);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+}
+
+.sparkMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 240px;
+  border-radius: 12px;
+  border: 1px solid var(--gcss-color-border-primary);
+  background: rgba(15, 18, 26, 0.98);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+  padding: 8px;
+  z-index: 30;
+}
+
+.sparkMenuTitle {
+  font-size: 12px;
+  color: var(--gcss-color-foreground-secondary);
+  padding: 4px 6px 8px 6px;
+}
+
+.sparkMenuItem {
+  width: 100%;
+  text-align: left;
+  padding: 10px 10px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--gcss-color-foreground-primary);
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.sparkMenuItem:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.sparkSpinnerRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px 4px 10px;
+  color: var(--gcss-color-foreground-secondary);
+  font-size: 12px;
+}
+
+.sparkSpinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.22);
+  border-top-color: var(--gcss-color-brand-primary);
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .popover {
