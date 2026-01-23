@@ -1,4 +1,4 @@
-import { GuxButton, GuxModal } from "genesys-spark-components-react";
+import { GuxButton, GuxCard, GuxModal } from "genesys-spark-components-react";
 
 type Props = {
   title: string;
@@ -19,18 +19,20 @@ export function DiffReviewModal({
 }: Props) {
   return (
     <GuxModal open size="large" onGuxdismiss={onCancel}>
-      <div slot="title">{title}</div>
+      <div slot="title" className="guxModalTitle">
+        {title}
+      </div>
 
       <div slot="content">
         <div className="compare">
-          <div>
+          <GuxCard accent="bordered" className="compareCard">
             <div className="paneTitle primary">Original</div>
             <div className="pane color-primary">{original}</div>
-          </div>
-          <div>
+          </GuxCard>
+          <GuxCard accent="bordered" className="compareCard">
             <div className="paneTitle primary">Polished</div>
             <div className="pane color-primary">{polished}</div>
-          </div>
+          </GuxCard>
         </div>
       </div>
 
