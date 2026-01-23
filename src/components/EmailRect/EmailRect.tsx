@@ -3,10 +3,12 @@ import { BubbleMenu, EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import {
-  GuxActionButton,
   GuxCard,
   GuxFormFieldTextLike,
+  GuxList,
   GuxListItem,
+  GuxPopup,
+  GuxButton,
 } from "genesys-spark-components-react";
 import { polishEmail, type PolishMode } from "../../lib/gemini/polishEmail";
 import { DiffReviewModal } from "../EmailComposer/DiffReviewModal";
@@ -42,6 +44,7 @@ export function EmailRect() {
   const [error, setError] = useState<string | null>(null);
 
   const selectionRef = useRef<{ from: number; to: number } | null>(null);
+  const [aiMenuOpen, setAiMenuOpen] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -72,9 +75,7 @@ export function EmailRect() {
   useEffect(() => {
     if (!editor) return;
     // Close the AI menu as selection changes (prevents stale anchoring).
-    const handler = () => {
-      /* no-op: BubbleMenu repositions; ActionButton manages its own open state */
-    };
+    const handler = () => setAiMenuOpen(false);
     editor.on("selectionUpdate", handler);
     return () => {
       editor.off("selectionUpdate", handler);
@@ -88,6 +89,7 @@ export function EmailRect() {
 
     setError(null);
     setIsPolishing(true);
+    setAiMenuOpen(false);
     try {
       const selectedText = editor.state.doc.textBetween(from, to, "\n\n");
       selectionRef.current = { from, to };
@@ -169,17 +171,41 @@ export function EmailRect() {
                   shouldShow={({ state }) => state.selection.from !== state.selection.to}
                 >
                   <div className="emailRectBubble">
-                    <GuxActionButton accent="secondary" disabled={isPolishing}>
-                      <span slot="title">{isPolishing ? "Working…" : "Polish"}</span>
-                      {(Object.keys(MODE_LABEL) as PolishMode[]).map((mode) => (
-                        <GuxListItem key={mode} onClick={() => runRefineSelection(mode)}>
-                          <div className="emailRectAiMenuItem">
-                            <div className="emailRectAiMenuItemTitle">{MODE_LABEL[mode]}</div>
-                            <div className="emailRectAiMenuItemHelp">{MODE_HELP[mode]}</div>
-                          </div>
-                        </GuxListItem>
-                      ))}
-                    </GuxActionButton>
+                    <GuxPopup expanded={aiMenuOpen} placement="bottom-end" exceed-target-width>
+                      <div slot="target">
+                        <GuxButton
+                          accent="secondary"
+                          disabled={isPolishing}
+                          onClick={() => setAiMenuOpen((v) => !v)}
+                        >
+                          Polish
+                        </GuxButton>
+                      </div>
+
+                      <div slot="popup" className="emailRectAiMenu">
+                        {isPolishing ? (
+                          <div className="emailRectAiMenuLoading">Working…</div>
+                        ) : (
+                          <GuxList>
+                            {(Object.keys(MODE_LABEL) as PolishMode[]).map((mode) => (
+                              <GuxListItem
+                                key={mode}
+                                onClick={() => runRefineSelection(mode)}
+                              >
+                                <div className="emailRectAiMenuItem">
+                                  <div className="emailRectAiMenuItemTitle">
+                                    {MODE_LABEL[mode]}
+                                  </div>
+                                  <div className="emailRectAiMenuItemHelp">
+                                    {MODE_HELP[mode]}
+                                  </div>
+                                </div>
+                              </GuxListItem>
+                            ))}
+                          </GuxList>
+                        )}
+                      </div>
+                    </GuxPopup>
                   </div>
                 </BubbleMenu>
               </>

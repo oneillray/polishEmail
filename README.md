@@ -36,6 +36,18 @@ Note: If you change `.env`, **restart** `npm run dev` for changes to take effect
 npm run dev
 ```
 
+### Deploy to Vercel
+
+- **1) Push to GitHub** (Vercel deploys from a repo)
+- **2) In Vercel**: “New Project” → import your repo
+- **3) Set env var** in Vercel Project Settings → Environment Variables:
+  - **`GROQ_API_KEY`** = your Groq key
+- **4) Build settings**:
+  - **Build Command**: `npm run build`
+  - **Output Directory**: `dist`
+
+This repo provides a serverless endpoint at **`/api/polish`** (Vercel function in `api/polish.ts`) so your Groq key is never shipped to the browser.
+
 ### Key files
 
 - **UI**: `src/components/EmailComposer/EmailComposer.tsx`
